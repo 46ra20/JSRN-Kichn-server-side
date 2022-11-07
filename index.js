@@ -11,6 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 //get response from express
 app.get('/',(req, res)=>{
     res.send('Hello from express');
