@@ -17,7 +17,33 @@ app.use(express.json());
 const uri = process.env.URI;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+async function runMongodb(){
+    try{
+        //client connect with server
+        await client.connect();
+        const services = client.db('services').collection('foods');
+        
+        //services load from home page
+        app.get('/home',async(req, res)=>{
+            const findData = await services.find({}).limit(3).toArray();
+            res.send(findData)
+        })
 
+        //services load from services page
+        app.get('/services', async(req, res)=>{
+            const findData = await services.find({}).toArray();
+            res.send(findData);
+        })
+    }
+    catch(err){
+        console.log(err)
+    }
+    finally{
+
+    }
+}
+
+runMongodb().catch(err=> console.log(err));
 
 //get response from express
 app.get('/',(req, res)=>{
