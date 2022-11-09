@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -33,6 +33,43 @@ async function runMongodb(){
         app.get('/services', async(req, res)=>{
             const findData = await services.find({}).toArray();
             res.send(findData);
+        })
+        //api for service details
+        app.get('/details/:Id',async(req, res)=>{
+            const id = req.params.Id;
+            const details = await services.findOne({_id: ObjectId(id)});
+            res.send(details)
+        })
+        //post review on data base;
+        const review = await client.db('UserReviews').collection('review');
+        app.post('/review',async(req, res)=>{
+            const getData = req.body;
+            const userReview = await review.insertOne(getData);
+            res.send(userReview);
+            console.log(getData);
+        })
+        //get review
+        app.get('/review/:id',async (req, res)=>{
+            const id = req.params.id;
+            const query = {serviceId:id}
+            const findData = await review.find(query).toArray();
+            res.send(findData);
+        })
+        //all review by current user
+        app.get('/review',async(req, res)=>{
+            const user = req.query;
+            const userUid = user.uid;
+            const query = { userUid:userUid}
+            const findUserReview = await review.find(query).toArray();
+            res.send(findUserReview);
+        })
+        //delete review
+        app.delete('/delete-review/:id',async(req, res)=>{
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)}
+            const deleteData = await review.deleteOne(query)
+            res.send(deleteData)
+            console.log(deleteData)
         })
     }
     catch(err){
