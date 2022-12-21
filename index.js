@@ -14,13 +14,13 @@ app.use(express.json());
 
 //declare mongodb client
 
-const uri = process.env.URI;
+const uri =`mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASSWORD}@cluster0.p4fjw31.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 async function runMongodb(){
     try{
         //client connect with server
-        await client.connect();
+        // await client.connect();
         const services = client.db('services').collection('foods');
         
         //services load from home page
@@ -71,6 +71,14 @@ async function runMongodb(){
             res.send(deleteData)
             console.log(deleteData)
         })
+        //update review
+        app.put('/update-review/:id',async(req, res)=>{
+            const id = req.params.id;
+            const data = req.body;
+            const query = {_id:ObjectId(id)};
+            const updateData = await review.updateOne(query,{$set:{data}},{upsert:true});
+            res.send(updateData);
+        })
     }
     catch(err){
         console.log(err)
@@ -87,4 +95,4 @@ app.get('/',(req, res)=>{
     res.send('Hello from express');
 })
 
-app.listen(port)
+app.listen(port,()=>console.log('server started at '+port+' port'))
